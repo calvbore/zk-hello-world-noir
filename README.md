@@ -42,7 +42,7 @@ To add a circuit to the the nargo workspace use:
 yarn nargo:new <name>
 ```
 
-This will create a new circuit in `/packages/nargo/circuit/<name>/src/main.nr` and a new entry in the workspace `nargo.toml` file. If a new circuit is created without this command it will not be tracked and may cause issues with your workflow. 
+This will create a new circuit in `/packages/nargo/circuits/<name>/src/main.nr` and a new entry in the workspace `nargo.toml` file. If a new circuit is created without this command it will not be tracked and may cause issues with your workflow. 
 
 #### `delete`
 
