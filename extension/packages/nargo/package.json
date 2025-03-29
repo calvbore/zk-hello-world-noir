@@ -1,0 +1,17 @@
+{
+  "name": "@se-2/nargo",
+  "version": "0.0.1",
+  "scripts": {
+    "compile": "ts-node scripts/compileCircuits.ts",
+    "delete": "ts-node scripts/deleteCircuit.ts",
+    "new": "ts-node scripts/newCircuit.ts",
+    "test": "nargo test"
+  },
+  "devDependencies": {
+    "@iarna/toml": "^2.2.5",
+    "@types/node": "^22.13.4",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

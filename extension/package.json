@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "nargo:compile": "yarn workspace @se-2/nargo compile",
+    "nargo:delete": "yarn workspace @se-2/nargo delete",
+    "nargo:new": "yarn workspace @se-2/nargo new",
+    "nargo:test": "yarn workspace @se-2/nargo test",
+    "next:build": "yarn workspace @se-2/nextjs build"
+  }
+}
