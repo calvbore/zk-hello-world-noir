@@ -20,6 +20,23 @@ curl -L https://raw.githubusercontent.com/AztecProtocol/aztec-packages/refs/head
 bbup
 ```
 
+Check your `nargo` and `bb` versions:
+
+```
+nargo --version
+```
+
+Should read at least `nargo version = 1.0.0-beta.2`.
+
+And inside the nargo workspace:
+
+```
+cd packages/nargo
+bb --version
+```
+
+Should read at least `0.72.1`.
+
 ## Usage
 
 ### Commands
