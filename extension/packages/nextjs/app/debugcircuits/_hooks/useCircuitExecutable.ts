@@ -1,18 +1,17 @@
-import { InputMap, InputValue, AbiParameter } from "@noir-lang/types";
-import { getCircuitExecutable } from "../_utils/utilsCircuit";
 import { useEffect, useState } from "react";
+import { getCircuitExecutable } from "../_utils/utilsCircuit";
+import { AbiParameter, InputMap, InputValue } from "@noir-lang/types";
 
-type ExecutableReturn = {witness: Uint8Array, returnValue: InputValue} | undefined
+type ExecutableReturn = { witness: Uint8Array; returnValue: InputValue } | undefined;
 
 export const useCircuitExecutable = (
   name: string,
   inputs: InputMap,
   inputParameters: AbiParameter[],
 ): [() => void, InputValue | undefined, Uint8Array | undefined] => {
-
-  const [ executable, setExecutable ] = useState(() => getCircuitExecutable(name));
-  const [ witness, setWitness ] = useState<Uint8Array>();
-  const [ returnValue, setReturnValue ] = useState<InputValue>();
+  const [executable, setExecutable] = useState(() => getCircuitExecutable(name));
+  const [witness, setWitness] = useState<Uint8Array>();
+  const [returnValue, setReturnValue] = useState<InputValue>();
 
   useEffect(() => {
     setExecutable(() => getCircuitExecutable(name));
@@ -23,14 +22,13 @@ export const useCircuitExecutable = (
   useEffect(() => {
     setWitness(undefined);
     setReturnValue(undefined);
-  }, [inputs])
+  }, [inputs]);
 
   const executeCircuit = async () => {
     const executed = await executable?.execute(inputs);
     setWitness(executed?.witness);
     setReturnValue(executed?.returnValue);
-  }
+  };
 
   return [executeCircuit, returnValue, witness];
-
-}
+};

@@ -1,18 +1,17 @@
 "use client";
 
-import { useLocalStorage } from "usehooks-ts";
-import { CircuitUI } from "./circuit";
-import { useCircuitNames } from "../_hooks/useCircuitNames";
 import { useEffect } from "react";
+import { useCircuitNames } from "../_hooks/useCircuitNames";
+import { CircuitUI } from "./circuit";
+import { useLocalStorage } from "usehooks-ts";
+
 const selectedCircuitStorageKey = "scaffoldEth2.selectedCircuit";
 
 export const DebugCircuits = () => {
   const circuitNames = useCircuitNames();
-  const [selectedCircuit, setSelectedCircuit] = useLocalStorage<string>(
-    selectedCircuitStorageKey, 
-    circuitNames[0],
-    { initializeWithValue: false },
-  );
+  const [selectedCircuit, setSelectedCircuit] = useLocalStorage<string>(selectedCircuitStorageKey, circuitNames[0], {
+    initializeWithValue: false,
+  });
 
   useEffect(() => {
     if (!circuitNames.includes(selectedCircuit)) {

@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
-import { AbiParameter, AbiType, InputMap, InputValue } from "@noir-lang/types";
-import { displayTxResult } from "~~/app/debug/_components/contract";
+import { useEffect, useState } from "react";
 import { useCircuitExecutable } from "../../_hooks/useCircuitExecutable";
 import { useCircuitProver } from "../../_hooks/useCircuitProver";
 import { CircuitInfoDisplay } from "./CircuitInfoDisplay";
-import { notification } from "~~/utils/scaffold-eth";
 import { CircuitVerification } from "./CircuitVerification";
 import { ProofStatusIcon } from "./ProofStatusIcon";
+import { AbiParameter, AbiType, InputMap, InputValue } from "@noir-lang/types";
+import { displayTxResult } from "~~/app/debug/_components/contract";
+import { notification } from "~~/utils/scaffold-eth";
 
 type CircuitExecutionProps = {
-  circuitName: string,
-  inputs: InputMap,
-  params: AbiParameter[],
-  disableExecution: boolean,
-}
+  circuitName: string;
+  inputs: InputMap;
+  params: AbiParameter[];
+  disableExecution: boolean;
+};
 
 enum Stage {
-  execution, 
+  execution,
   executed,
   proving,
   proved,
@@ -24,19 +24,19 @@ enum Stage {
   verified,
 }
 
-export const CircuitExecution = ({
-  circuitName,
-  inputs,
-  params,
-  disableExecution,
-}: CircuitExecutionProps) => {
+export const CircuitExecution = ({ circuitName, inputs, params, disableExecution }: CircuitExecutionProps) => {
   const [executable, returnValue, witness] = useCircuitExecutable(circuitName, inputs, params);
-  const [prover, proof, publicInputs, isVerified] = useCircuitProver(circuitName, witness as Uint8Array, params, inputs);
+  const [prover, proof, publicInputs, isVerified] = useCircuitProver(
+    circuitName,
+    witness as Uint8Array,
+    params,
+    inputs,
+  );
 
-  const [ isLoadingProof, setIsLoadingProof ] = useState<boolean>();
+  const [isLoadingProof, setIsLoadingProof] = useState<boolean>();
 
-  const [ disableProver, setDisableProver ] = useState<boolean>(true);
-  const [ disableVerifier, setDisableVerifier ] = useState<boolean>(true);
+  const [disableProver, setDisableProver] = useState<boolean>(true);
+  const [disableVerifier, setDisableVerifier] = useState<boolean>(true);
 
   useEffect(() => {
     if (isVerified != undefined) {
@@ -48,8 +48,8 @@ export const CircuitExecution = ({
     setIsLoadingProof(false);
     setDisableProver(true);
     setDisableVerifier(true);
-    console.log('change')
-  }, [params, inputs])
+    console.log("change");
+  }, [params, inputs]);
 
   return (
     <>
@@ -63,7 +63,7 @@ export const CircuitExecution = ({
                 notification.error(
                   <div className={`flex flex-col ml-1 cursor-default`}>
                     <p className="my-0">{e.message}</p>
-                  </div>
+                  </div>,
                 );
               });
               setDisableProver(false);
@@ -82,10 +82,7 @@ export const CircuitExecution = ({
             disabled={!witness || disableProver}
           >
             Prove
-            <ProofStatusIcon
-              isLoading={isLoadingProof}
-              isValid={isVerified}
-            />
+            <ProofStatusIcon isLoading={isLoadingProof} isValid={isVerified} />
           </button>
           <span>
             <CircuitVerification
@@ -97,31 +94,19 @@ export const CircuitExecution = ({
           </span>
         </span>
       </div>
-      <CircuitInfoDisplay
-        title="Inputs"
-        object={inputs}
-        nullMessage={"inputs not found"}
-      />
+      <CircuitInfoDisplay title="Inputs" object={inputs} nullMessage={"inputs not found"} />
       <CircuitInfoDisplay
         title="Outputs"
         object={returnValue}
-        nullMessage={witness? "no program outputs" : "program has not been executed"}
+        nullMessage={witness ? "no program outputs" : "program has not been executed"}
       />
       <CircuitInfoDisplay
         title="Public Values"
         object={publicInputs}
-        nullMessage={proof? "no public values in circuit" : "circuit inputs have not been proved"}
+        nullMessage={proof ? "no public values in circuit" : "circuit inputs have not been proved"}
       />
-      <CircuitInfoDisplay
-        title="Witness"
-        object={witness}
-        nullMessage={"program has not been executed"}
-      />
-      <CircuitInfoDisplay
-        title="Proof"
-        object={proof}
-        nullMessage={"circuit inputs have not been proved"}
-      />
+      <CircuitInfoDisplay title="Witness" object={witness} nullMessage={"program has not been executed"} />
+      <CircuitInfoDisplay title="Proof" object={proof} nullMessage={"circuit inputs have not been proved"} />
     </>
   );
-}
+};

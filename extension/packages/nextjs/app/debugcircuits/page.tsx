@@ -23,6 +23,6 @@ const Debug: NextPage = () => {
       </div>
     </>
   );
-}
+};
 
 export default Debug;

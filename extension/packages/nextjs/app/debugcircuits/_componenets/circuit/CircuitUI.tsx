@@ -1,27 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { AbiParameter, AbiType, InputMap, InputValue } from "@noir-lang/types";
-import { useCircuitInputParams } from "../../_hooks/useCircuitInputParams";
-import { fillInputMap, getCircuitHash, getCircuitNoirVersion } from "../../_utils/utilsCircuit";
-import { CircuitInputsForm } from "./CircuitInputsForm";
-import { displayTxResult } from "~~/app/debug/_components/contract";
+import { useEffect, useState } from "react";
 import { useCircuitExecutable } from "../../_hooks/useCircuitExecutable";
-import { useCircuitProver } from "../../_hooks/useCircuitProver";
-import { CircuitExecution } from "./CircuitExecution";
 import { useCircuitHash } from "../../_hooks/useCircuitHash";
+import { useCircuitInputParams } from "../../_hooks/useCircuitInputParams";
+import { useCircuitProver } from "../../_hooks/useCircuitProver";
+import { fillInputMap, getCircuitHash, getCircuitNoirVersion } from "../../_utils/utilsCircuit";
+import { CircuitExecution } from "./CircuitExecution";
+import { CircuitInputsForm } from "./CircuitInputsForm";
+import { AbiParameter, AbiType, InputMap, InputValue } from "@noir-lang/types";
+import { displayTxResult } from "~~/app/debug/_components/contract";
 
 type CircuitUIProps = {
   circuitName: string;
   className?: string;
 };
 
-export const CircuitUI = ({circuitName, className = ""}: CircuitUIProps) => {
+export const CircuitUI = ({ circuitName, className = "" }: CircuitUIProps) => {
   const params: AbiParameter[] = useCircuitInputParams(circuitName);
 
-  const [ inputs, setInputs ] = useState<InputMap>(() => fillInputMap(params));
+  const [inputs, setInputs] = useState<InputMap>(() => fillInputMap(params));
 
-  const [ inputErrors, setInputErrors ] = useState<Record<string, boolean>>({});
+  const [inputErrors, setInputErrors] = useState<Record<string, boolean>>({});
 
   const surfaceError = (path: (string | number)[], value: boolean) => {
     const cloneErrors = structuredClone(inputErrors);
@@ -34,17 +34,17 @@ export const CircuitUI = ({circuitName, className = ""}: CircuitUIProps) => {
     }
 
     setInputErrors(() => cloneErrors);
-  }
+  };
 
   const seeIfError = (): boolean => {
     const keys = Object.keys(inputErrors);
-    for (let i = 0; i<keys.length; i ++) {
+    for (let i = 0; i < keys.length; i++) {
       if (inputErrors[keys[i]]) return true;
     }
     return false;
-  }
+  };
 
-  const [ disableExecution, setDisableExecution ] = useState<boolean>(false);
+  const [disableExecution, setDisableExecution] = useState<boolean>(false);
 
   useEffect(() => {
     const b = seeIfError();
@@ -52,35 +52,27 @@ export const CircuitUI = ({circuitName, className = ""}: CircuitUIProps) => {
   }, [inputErrors]);
 
   useEffect(() => {
-    setInputs(() => fillInputMap(params, inputs))
+    setInputs(() => fillInputMap(params, inputs));
     setInputErrors({});
-  }, [params])
+  }, [params]);
 
-  function mutateInputs(
-    v: any, 
-    path: (string | number)[], 
-    index: number = 0
-  ): void {
-
-    const mutateClone = (
-      obj: any,
-      v: any, 
-      path: (string | number)[], 
-      index: number = 0
-    ): any => {
+  function mutateInputs(v: any, path: (string | number)[], index: number = 0): void {
+    const mutateClone = (obj: any, v: any, path: (string | number)[], index: number = 0): any => {
       let objClone = structuredClone(obj);
-      if (index == path.length-1) {
+      if (index == path.length - 1) {
         objClone[path[index]] = v;
       } else {
-        objClone[path[index]] = mutateClone(objClone[path[index]], v, path, index+1);
+        objClone[path[index]] = mutateClone(objClone[path[index]], v, path, index + 1);
       }
 
       return objClone;
-    }
+    };
 
     const inputsClone = mutateClone(inputs, v, path);
-    
-    setInputs(() => {return inputsClone});
+
+    setInputs(() => {
+      return inputsClone;
+    });
   }
 
   const hash = useCircuitHash(circuitName);
@@ -146,6 +138,6 @@ export const CircuitUI = ({circuitName, className = ""}: CircuitUIProps) => {
           </div>
         </div>
       </div>
-      </>
-    );
-  };
+    </>
+  );
+};

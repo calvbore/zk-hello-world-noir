@@ -1,20 +1,17 @@
-import { useState, useEffect,useMemo } from "react";
-import { 
-  useScaffoldContract,
-  useTransactor,
-} from "~~/hooks/scaffold-eth";
-import { useAllContracts } from "~~/utils/scaffold-eth/contractsData";
-import { ContractName, ContractAbi } from "~~/utils/scaffold-eth/contract";
-import { notification } from "~~/utils/scaffold-eth";
-import { useWalletClient } from "wagmi";
+import { useEffect, useMemo, useState } from "react";
 import { ProofStatusIcon } from "./ProofStatusIcon";
+import { useWalletClient } from "wagmi";
+import { useScaffoldContract, useTransactor } from "~~/hooks/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
+import { ContractAbi, ContractName } from "~~/utils/scaffold-eth/contract";
+import { useAllContracts } from "~~/utils/scaffold-eth/contractsData";
 
 type CircuitVerificationProps = {
-  publicInputs?: string[],
-  proof?: Uint8Array,
-  isLoadingProof?: boolean,
-  disable?: boolean,
-}
+  publicInputs?: string[];
+  proof?: Uint8Array;
+  isLoadingProof?: boolean;
+  disable?: boolean;
+};
 
 function uint8ArrayToHexString(buffer: Uint8Array): string {
   const hex: string[] = [];
@@ -22,20 +19,15 @@ function uint8ArrayToHexString(buffer: Uint8Array): string {
   buffer.forEach(function (i) {
     let h = i.toString(16);
     if (h.length % 2) {
-      h = '0' + h;
+      h = "0" + h;
     }
     hex.push(h);
   });
 
-  return '0x' + hex.join('');
+  return "0x" + hex.join("");
 }
 
-export const CircuitVerification = ({
-  publicInputs,
-  proof,
-  isLoadingProof,
-  disable,
-}: CircuitVerificationProps) => {
+export const CircuitVerification = ({ publicInputs, proof, isLoadingProof, disable }: CircuitVerificationProps) => {
   const contractsData = useAllContracts();
   const contractNames = useMemo(
     () =>
@@ -45,13 +37,13 @@ export const CircuitVerification = ({
     [contractsData],
   );
 
-  const [ selectedContract, setSelectedContract ] = useState<ContractName>(contractNames[0]);
-  const [ selectedFunction, setSelectedFunction ] = useState<string>("");
+  const [selectedContract, setSelectedContract] = useState<ContractName>(contractNames[0]);
+  const [selectedFunction, setSelectedFunction] = useState<string>("");
 
-  const [ readWrite, setReadWrite ] = useState<"read" | "write" | "simulate">("simulate");
+  const [readWrite, setReadWrite] = useState<"read" | "write" | "simulate">("simulate");
 
-  const [ callSuccess, setCallSuccess ] = useState<boolean>();
-  const [ isLoading , setIsLoading ] = useState<boolean>(false);
+  const [callSuccess, setCallSuccess] = useState<boolean>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (callSuccess != undefined) {
@@ -61,7 +53,7 @@ export const CircuitVerification = ({
 
   useEffect(() => {
     setCallSuccess(undefined);
-  }, [selectedFunction, selectedContract, proof])
+  }, [selectedFunction, selectedContract, proof]);
 
   const transactor = useTransactor();
 
@@ -69,7 +61,7 @@ export const CircuitVerification = ({
   const { data: callableContract } = useScaffoldContract({
     contractName: selectedContract,
     walletClient,
-  },);
+  });
 
   return (
     <>
@@ -83,24 +75,34 @@ export const CircuitVerification = ({
             // proof[97] = 6;
             if (readWrite == "read") {
               //@ts-ignore
-              g = await callableContract?.[readWrite][selectedFunction](
-                [uint8ArrayToHexString(proof as Uint8Array), publicInputs]
-              ).catch((e: Error) => {
+              g = await callableContract?.[readWrite][selectedFunction]([
+                uint8ArrayToHexString(proof as Uint8Array),
+                publicInputs,
+              ]).catch((e: Error) => {
                 setCallSuccess(false);
                 notification.error(
                   <div className={`flex flex-col ml-1 cursor-default`}>
                     <p className="my-0">{e.message}</p>
-                  </div>
+                  </div>,
                 );
               });
             }
             if (readWrite == "write") {
-            await transactor(
-              //@ts-expect-error
-              () => callableContract?.[readWrite][selectedFunction](
-                [uint8ArrayToHexString(proof as Uint8Array), publicInputs]
-              )
-            ).then((result) => {g = result}, () => {g = false});
+              await transactor(
+                () =>
+                  //@ts-expect-error
+                  callableContract?.[readWrite][selectedFunction]([
+                    uint8ArrayToHexString(proof as Uint8Array),
+                    publicInputs,
+                  ]),
+              ).then(
+                result => {
+                  g = result;
+                },
+                () => {
+                  g = false;
+                },
+              );
             }
 
             if (g) {
@@ -113,35 +115,46 @@ export const CircuitVerification = ({
           disabled={!publicInputs || !proof || !selectedContract || !selectedFunction || isLoadingProof || disable}
         >
           Submit
-          <ProofStatusIcon
-            isLoading={isLoading}
-            isValid={callSuccess}
-          />
+          <ProofStatusIcon isLoading={isLoading} isValid={callSuccess} />
         </button>
         <select defaultValue="Pick a color" className="select select-xs select-secondary mr-1">
           <option disabled={true}>Pick a contract</option>
-          {contractNames.map((name) => {return (
-            <option onClick={() => {setSelectedContract(name)}}>{name}</option>
-          )})}
+          {contractNames.map(name => {
+            return (
+              <option
+                key={`option:contract:`+name}
+                onClick={() => {
+                  setSelectedContract(name);
+                }}
+              >
+                {name}
+              </option>
+            );
+          })}
         </select>
         <select defaultValue="Pick a color" className="select select-xs select-secondary">
           <option disabled={true}>Pick a function</option>
-          {contractsData[selectedContract]?.abi.map((func) => {
+          {contractsData[selectedContract]?.abi.map(func => {
             if (func.type == "function") {
               return (
-                <option onClick={() => {
-                  if (func.stateMutability == "view" || func.stateMutability == "pure") {
-                    setReadWrite("read");
-                  } else {
-                    setReadWrite("write");
-                  }
-                  setSelectedFunction(func.name)
-                }}>{func.name}</option>
-              )
+                <option
+                  key={`option:${selectedContract}:function:`+func.name}
+                  onClick={() => {
+                    if (func.stateMutability == "view" || func.stateMutability == "pure") {
+                      setReadWrite("read");
+                    } else {
+                      setReadWrite("write");
+                    }
+                    setSelectedFunction(func.name);
+                  }}
+                >
+                  {func.name}
+                </option>
+              );
             }
           })}
         </select>
       </span>
     </>
-  )
-}
+  );
+};
