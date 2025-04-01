@@ -1,4 +1,4 @@
-import { useEffect, useState, JSX } from "react";
+import { JSX, useEffect, useState } from "react";
 import { AbiParameter, AbiType, InputMap, InputValue } from "@noir-lang/types";
 import { InputBase } from "~~/components/scaffold-eth";
 
@@ -429,7 +429,7 @@ const renderInput = (
           surfaceError,
         );
         fields.push(
-          <div key={key+`[${i}]`}>
+          <div key={key + `[${i}]`}>
             <div className="flex items-center ml-2 mb-2">
               <span
                 className={`ml-${Math.min(path.length, 4)} flex items-center block text-xs font-medium leading-none`}

@@ -22,7 +22,7 @@ export const CircuitInputsForm = ({
 }: CircuitInputsFormProps) => {
   const inputFields = params.map(param => {
     return (
-      <div key={`input:`+param.name}>
+      <div key={`input:` + param.name}>
         <CircuitInput inputParam={param} stateMutateFunc={mutateInputs} inputs={inputs} surfaceError={surfaceError} />
       </div>
     );

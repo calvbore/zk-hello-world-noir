@@ -88,13 +88,12 @@ export const CircuitVerification = ({ publicInputs, proof, isLoadingProof, disab
               });
             }
             if (readWrite == "write") {
-              await transactor(
-                () =>
-                  //@ts-expect-error
-                  callableContract?.[readWrite][selectedFunction]([
-                    uint8ArrayToHexString(proof as Uint8Array),
-                    publicInputs,
-                  ]),
+              await transactor(() =>
+                //@ts-expect-error
+                callableContract?.[readWrite][selectedFunction]([
+                  uint8ArrayToHexString(proof as Uint8Array),
+                  publicInputs,
+                ]),
               ).then(
                 result => {
                   g = result;
@@ -122,7 +121,7 @@ export const CircuitVerification = ({ publicInputs, proof, isLoadingProof, disab
           {contractNames.map(name => {
             return (
               <option
-                key={`option:contract:`+name}
+                key={`option:contract:` + name}
                 onClick={() => {
                   setSelectedContract(name);
                 }}
@@ -138,7 +137,7 @@ export const CircuitVerification = ({ publicInputs, proof, isLoadingProof, disab
             if (func.type == "function") {
               return (
                 <option
-                  key={`option:${selectedContract}:function:`+func.name}
+                  key={`option:${selectedContract}:function:` + func.name}
                   onClick={() => {
                     if (func.stateMutability == "view" || func.stateMutability == "pure") {
                       setReadWrite("read");
