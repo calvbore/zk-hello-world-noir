@@ -39,6 +39,10 @@ Should read at least `0.72.1`.
 
 ## Usage
 
+```
+npx create-eth@latest -e calvbore/noir-starter-kit
+```
+
 ### Foundry
 
 If you are opting to use the foundry flavour of scaffold-eth 2 then you should make sure that the optimizer is enabled in `foundry.toml`, simply add `optimizer = true` under `[profile.default]`, otherwise the compiler will likely throw a stack too deep error.
