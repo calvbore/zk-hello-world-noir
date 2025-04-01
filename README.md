@@ -103,3 +103,30 @@ For foundry:
 ```
 yarn workspace @se-2/foundry add -D @aztec/bb.js @noir-lang/noir_js @noir-lang/noir_wasm
 ```
+
+### Solidity Verifier
+
+The `yarn nargo:compile` command will generate a solidity verifier contract and put it in your `contracts` directory. All you need to do is import it into your solidity file and inherit `UltraVerifier` in the contract that you would like to verify proofs with.
+
+```
+import "./your_circuitVerifier.sol";
+
+contract YourContract is UltraVerifier {
+    //...
+}
+```
+
+`UltraVerifier` comes equipped with a `verify()` function that you can feed your proof data and public values into and receive a `bool` to check the proof's validity.
+
+```
+function verify(bytes calldata _proof, bytes32[] calldata _publicInputs) external view returns (bool);
+```
+
+Because the visibility of this function is set to `external` in order to use it within your contract you will need use an external call in a similar manner as this:
+
+```
+//...
+bool validity = this.verify(_proof, _publicInputs);
+require(validity == true);
+//...
+```
