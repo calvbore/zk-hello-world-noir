@@ -432,7 +432,7 @@ const renderInput = (
           <div key={key+`[${i}]`}>
             <div className="flex items-center ml-2 mb-2">
               <span
-                className={`ml-${Math.min(path.length - 1, 4)} flex items-center block text-xs font-medium leading-none`}
+                className={`ml-${Math.min(path.length, 4)} flex items-center block text-xs font-medium leading-none`}
               >
                 {abiType.fields[i].name}
               </span>
