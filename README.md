@@ -39,6 +39,15 @@ Should read at least `0.72.1`.
 
 ## Usage
 
+### Foundry
+
+If you are opting to use the foundry flavour of scaffold-eth 2 then you should make sure that the optimizer is enabled in `foundry.toml`, simply add `optimizer = true` under `[profile.default]`, otherwise the compiler will likely throw a stack too deep error.
+
+```
+[profile.default]
+optimizer = true
+```
+
 ### Commands
 
 #### `compile`
@@ -87,10 +96,10 @@ To test your verifier smart contracts you may want to install `@aztec/bb.js`, `@
 
 For hardhat:
 ```
-yarn workspace @se-2/hardhat add @aztec/bb.js @noir-lang/noir_js @noir-lang/noir_wasm
+yarn workspace @se-2/hardhat add -D @aztec/bb.js @noir-lang/noir_js @noir-lang/noir_wasm
 ```
 
 For foundry:
 ```
-yarn workspace @se-2/foundry add @aztec/bb.js @noir-lang/noir_js @noir-lang/noir_wasm
+yarn workspace @se-2/foundry add -D @aztec/bb.js @noir-lang/noir_js @noir-lang/noir_wasm
 ```
