@@ -44,13 +44,13 @@ yarn start
 
 ---
 ## Checkpoint 1: Smart Contract Merkle Tree
-You'll need to import the `LeanIMT` Contract and `LeanIMTData` struct from zk-kit into `YourContract.sol`.
-
-First, install the dependency in your solidity workspace.
+First, install the `zk-kit` dependency in your solidity workspace.
 
 ```
-
+yarn workspace @se-2/hardhat add zk-kit/lean-imt.sol
 ```
+
+You'll need to import the `InternalLeanIMT` Contract and `LeanIMTData` struct from zk-kit into `YourContract.sol`.
 
 ```
 import { InternalLeanIMT, LeanIMTData } from "@zk-kit/lean-imt.sol/LeanIMT.sol";
@@ -63,13 +63,21 @@ using InternalLeanIMT for LeanIMTData;
 LeanIMTData public mt;
 ```
 
-Create an array to track all the added members, we want to keep this so we can recreate the merkle tree at any time.
+Create an event to track all the added members, we want to keep this so we can recreate the merkle tree at any time.
 
 ```
-uint256[] public leaves;
+event NewLeaf(uint256 indexed index, uint256 indexed leaf);
 ```
 
-Write function that accepts ETH and gives membership in exchange. It should take in one `uint256` value and add it to the `leaves` array. Test it in the frontend with the `Debug Contracts` tab.
+Write function that accepts ETH and gives membership in exchange. It should take in one `uint256` value and emit the `NewLeaf` event. Test it in the frontend with the `Debug Contracts` tab.
+
+```
+function insert(uint256 _hashedSecret) public payable {
+    if (premium) require(msg.value > 0);
+    mt._insert(_hashedSecret);
+    emit NewLeaf(mt.size-1, _hashedSecret);
+}
+```
 
 Add a couple convenience functions. One to see the root of the contract's merkle tree and another to get the index of a leaf after it has been committed.
 
@@ -128,7 +136,7 @@ use binary_merkle_root::binary_merkle_root;
 use std::hash::poseidon::bn254::hash_2;
 ```
 
-Define the `hasher` function that will be used inside the merkle tree calculations. It will be a simple wrapper around the `poseidon2` `hash` function.
+Define the `hasher` function that will be used inside the merkle tree calculations. It will be a simple wrapper around the `poseidon` `hash` function.
 
 ```
 fn hasher(leaves: [Field; 2]) -> Field {
