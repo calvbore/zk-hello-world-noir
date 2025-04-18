@@ -129,8 +129,46 @@ function fillInputMap(params: AbiParameter[], oldInputs?: InputMap): InputMap {
   return emptyInputs;
 }
 
+// straight copypasta'd from https://devimalplanet.com/how-to-generate-random-number-in-range-javascript
+/** Generates BigInts between low (inclusive) and high (exclusive) */
+function generateRandomBigInt(lowBigInt: bigint, highBigInt: bigint) {
+  if (lowBigInt >= highBigInt) {
+    throw new Error('lowBigInt must be smaller than highBigInt');
+  }
+
+  const difference: bigint = highBigInt - lowBigInt;
+  const differenceLength = difference.toString().length;
+  let multiplier = '';
+  while (multiplier.length < differenceLength) {
+    multiplier += Math.random()
+      .toString()
+      .split('.')[1];
+  }
+  multiplier = multiplier.slice(0, differenceLength);
+  const divisor = '1' + '0'.repeat(differenceLength);
+
+  const randomDifference = (difference * BigInt(multiplier)) / BigInt(divisor);
+
+  return lowBigInt + randomDifference;
+}
+
+function uint8ArrayToHexString(buffer: Uint8Array): `0x${string}` {
+  const hex: string[] = [];
+
+  buffer.forEach(function (i) {
+    let h = i.toString(16);
+    if (h.length % 2) {
+      h = "0" + h;
+    }
+    hex.push(h);
+  });
+
+  return `0x${hex.join("")}`;
+}
+
 export {
   fillInputMap,
+  generateRandomBigInt,
   getCircuitNames,
   getCircuitInputParams,
   getCircuitBytecode,
@@ -138,4 +176,5 @@ export {
   getCircuitProver,
   getCircuitHash,
   getCircuitNoirVersion,
+  uint8ArrayToHexString,
 };
