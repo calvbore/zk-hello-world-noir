@@ -47,7 +47,7 @@ yarn start
 First, install the `zk-kit` dependency in your solidity workspace.
 
 ```
-yarn workspace @se-2/hardhat add zk-kit/lean-imt.sol
+yarn workspace @se-2/hardhat add @zk-kit/lean-imt.sol
 ```
 
 You'll need to import the `InternalLeanIMT` Contract and `LeanIMTData` struct from zk-kit into `YourContract.sol`.
@@ -140,7 +140,7 @@ Define the `hasher` function that will be used inside the merkle tree calculatio
 
 ```
 fn hasher(leaves: [Field; 2]) -> Field {
-	hash_2(leaves);
+	hash_2(leaves)
 }
 ```
 
