@@ -1,5 +1,7 @@
 # ZK Hello World - Merkle Tree
+
 Develop a smart contract and zero knowledge circuit that allows users to store a secret in a merkle tree and will allow anyone that can prove they know a secret in the merkle tree to anonymously set a greeting stored in the contract.
+
 ---
 ## Checkpoint 0: Environment
 - install dependencies
