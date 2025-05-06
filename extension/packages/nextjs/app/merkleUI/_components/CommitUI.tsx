@@ -86,13 +86,13 @@ export const CommitUI = () => {
               </div>
             </div>
             <div className="flex items-center ml-2 mb-2">
-              <span className="font-extralight text-xs">{salt}</span>
+              <span className="font-extralight text-xs">{salt?.toString()}</span>
             </div>
             <div className={`flex items-center ml-2 mb-2`}>
               <span>Hash:</span>
             </div>
             <div className="flex items-center ml-2 mb-2">
-              <span className="font-extralight text-xs">{hash}</span>
+              <span className="font-extralight text-xs">{hash?.toString()}</span>
             </div>
             <div className="mt-2 mb-2 flex gap-2">
               <span>

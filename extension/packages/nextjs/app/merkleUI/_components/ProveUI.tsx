@@ -148,19 +148,19 @@ export const ProveUI = () => {
           <div>
             <div className={`flex items-center ml-2 mb-2 mt-2`}>
               <span>Tree Size:</span>
-              <span className="font-extralight text-xs ml-2">{treeData?.[0]}</span>
+              <span className="font-extralight text-xs ml-2">{treeData?.[0]?.toString()}</span>
             </div>
           </div>
           <div>
             <div className={`flex items-center ml-2 mb-2 mt-2`}>
               <span>Tree Depth:</span>
-              <span className="font-extralight text-xs ml-2">{treeData?.[1]}</span>
+              <span className="font-extralight text-xs ml-2">{treeData?.[1]?.toString()}</span>
             </div>
           </div>
           <div>
             <div className={`flex items-center ml-2 mb-2 mt-2`}>
               <span>Tree Root:</span>
-              <span className="font-extralight text-xs ml-2">{contractRoot}</span>
+              <span className="font-extralight text-xs ml-2">{contractRoot?.toString()}</span>
             </div>
           </div>
           <div>
