@@ -120,7 +120,7 @@ await deploy("YourContract", {
 });
 ```
 
-Now `YourContract` Should deploy correctly.
+Run `yarn deploy` to deploy the new version of `YourContract.sol`.
 
 ---
 ## Checkpoint 2: Noir Merkle Proof Verification Circuit
@@ -169,7 +169,7 @@ fn main(
 }
 ```
 
-Generate the merkle `leaf` by feeding `secret` and `salt` to `hasher`.
+Inside of the `main` function generate the merkle `leaf` by feeding `secret` and `salt` to `hasher`.
 
 ```
 let leaf = hasher([secret, salt]);
@@ -207,9 +207,11 @@ assert(depth <= siblings.len());
 assert(msg == msg);
 ```
 
+Run `yarn nargo:compile` in your terminal to compile `your_circuit` and generate its associated files.
+
 ## Checkpoint 3: Circuit Smart Contract Verifier
 
-Run `yarn nargo:compile` in your terminal and you'll find that a new solidity file in your contracts directory. Import the new contract into `YourContract.sol` and inherit `UltraVerifier` in `YourContract`.
+After running `yarn nargo:compile` you'll find that a new solidity file in your contracts directory. Import the new contract into `YourContract.sol` and inherit `UltraVerifier` in `YourContract`.
 
 ```
 import "./your_circuitVerifier.sol";
@@ -243,7 +245,7 @@ for (uint256 i; i<messageChars.length; i++) {
 Check that the `proved_root` and `proved_depth` values match those stored by `YourContract`.
 
 ```
-require(proved_root == mt.root(), "Root does not match");
+require(proved_root == mt._root(), "Root does not match");
 require(proved_depth == mt.depth, "Depth does not match");
 ```
 
@@ -257,7 +259,7 @@ require(validity == true, "Invalid proof");
 After the proof is found to be valid set the greeting message of `YourContract` to the message tied to the proof.
 
 ```
-greeting = message;
+greeting = string(abi.encode(message));
 totalCounter += 1;
 ```
 
