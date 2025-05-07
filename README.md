@@ -292,7 +292,11 @@ require(isProved[proofHash] == false, "Proof has been used");
 
 Click on the `MerkleUI` tab in your front end. You'll see two main components on the page.
 
+<img src="https://github.com/user-attachments/assets/5e8a1cf0-d528-4c47-b954-6f933550b8c7" width="500">
+
 In the input field under `Secret:` enter a string you'd like to use as your secret. If you'd like to generate a new salt for you're commitment you can click the refresh button beside the `Salt:` heading. Below you will see the `Hash:` heading with the calculated hash of your secret input and the salt. 
+
+<img src="https://github.com/user-attachments/assets/3ec3afaf-be74-4e63-83d3-137fecc3ad03" width="500">
 
 When you're ready click the `Commit` button and your secret commitment will be added to the merkle tree in `YourContract`. You can click on the `Commit Info:` heading below to expand and see your commitment information. Click on the `Copy to Clipboard` button to copy it to your clipboard.
 
@@ -305,8 +309,12 @@ Paste your commitment info into the input field below the `Leaf Info:` heading.
 
 Enter a string you would like to set the contract greeting to in the input field beneath the `Message:` heading. Be careful to ensure that the string you enter is the same length as the string defined as an input in `your_circuit`, otherwise the field will warn you and the circuit will fail to execute.
 
+<img src="https://github.com/user-attachments/assets/e9361acc-d1c6-428d-9835-0bc67eeff0e5" width="500">
+
 Beneath you can click `Circuit Inputs:` to expand and view the input parameters that will be passed to `your_circuit`.
 
 Click the `Execute` button. If everything is running correctly it will enable the `Prove` button beside it. Click `Prove`, a loading circle will begin to spin. It may take a couple moments for your browser to generate the proof, be patient with it. If the proof is valid the loading icon will turn into a check and the `Set Greeting` button will be enabled, you can click this button to send a transaction with the generated proof and set the greeting in `YourContract` to the string you entered in the `Message:` field.
+
+<img src="https://github.com/user-attachments/assets/443f7750-7100-40f4-a261-53f83cc83e97" width="500">
 
 ---
