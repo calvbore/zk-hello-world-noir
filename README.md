@@ -2,7 +2,7 @@
 
 Develop a smart contract and zero knowledge circuit that allows users to store a secret in a [merkle tree](https://hackmd.io/@vplasencia/S1whLBN16) and will allow anyone that can prove they know a secret hidden inside the merkle tree to anonymously set a greeting stored in the smart contract.
 
-Using this basic merkle tree structure you will be able to construct arbitrary membership groups and allow those within the grout to prove their membership anonymously. 
+Using this basic merkle tree structure you will be able to construct arbitrary membership groups and allow those within the group to prove their membership anonymously. 
 
 ---
 ## Checkpoint 0: Environment
