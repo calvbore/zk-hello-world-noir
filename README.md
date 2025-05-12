@@ -13,6 +13,12 @@ Before you begin, you need to install the following tools:
 - [Nargo](https://noir-lang.org/docs/getting_started/quick_start#installation)
 - [bb](https://noir-lang.org/docs/getting_started/quick_start#proving-backend)
 
+After installing `bbup` make sure to install the version of `bb` that is compatible with this challenge.
+
+```sh
+bbup --version 0.72.1
+```
+
 Then download the challenge to your computer and install dependencies by running:
 
 ```sh
@@ -29,14 +35,14 @@ yarn chain
 > in a second terminal window, 🛰 deploy your contract (locally):
 
 ```sh
-cd challenge-2-token-vendor
+cd zk-hello-world
 yarn deploy
 ```
 
 > in a third terminal window, start your 📱 frontend:
 
 ```sh
-cd challenge-2-token-vendor
+cd zk-hello-world
 yarn start
 ```
 
