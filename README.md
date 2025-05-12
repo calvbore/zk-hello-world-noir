@@ -1,6 +1,8 @@
 # ZK Hello World - Merkle Tree
 
-Develop a smart contract and zero knowledge circuit that allows users to store a secret in a merkle tree and will allow anyone that can prove they know a secret in the merkle tree to anonymously set a greeting stored in the contract.
+Develop a smart contract and zero knowledge circuit that allows users to store a secret in a [merkle tree](https://hackmd.io/@vplasencia/S1whLBN16) and will allow anyone that can prove they know a secret hidden inside the merkle tree to anonymously set a greeting stored in the smart contract.
+
+Using this basic merkle tree structure you will be able to construct arbitrary membership groups and allow those within the grout to prove their membership anonymously. 
 
 ---
 ## Checkpoint 0: Environment
@@ -18,6 +20,8 @@ After installing `bbup` make sure to install the version of `bb` that is compati
 ```sh
 bbup --version 0.72.1
 ```
+
+If you are using vscode you may want to install the [Noir Language Support](https://marketplace.visualstudio.com/items?itemName=noir-lang.vscode-noir) extension.
 
 Then download the challenge to your computer and install dependencies by running:
 
@@ -64,6 +68,8 @@ You'll need to import the `InternalLeanIMT` Contract and `LeanIMTData` struct fr
 import { InternalLeanIMT, LeanIMTData } from "@zk-kit/lean-imt.sol/LeanIMT.sol";
 ```
 
+If you try to deploy `YourContract` after importing this library you may run into issues right now. The fix for deploying the contract is covered at the end of this section.
+
 Instantiate a merkle tree data variable in `YourContract.sol`, make sure to use the `InternalLeanIMT` contract library for the struct!
 
 ```
@@ -77,7 +83,7 @@ Create an event to track all the added members, we want to keep this so we can r
 event NewLeaf(uint256 indexed index, uint256 indexed leaf);
 ```
 
-Write function that accepts ETH and gives membership in exchange. It should take in one `uint256` value and emit the `NewLeaf` event. Test it in the frontend with the `Debug Contracts` tab.
+Write function that will accept ETH if a premium is set and give membership in exchange. It should take in one `uint256` value and emit the `NewLeaf` event.
 
 ```
 function insert(uint256 _hashedSecret) public payable {
@@ -130,7 +136,7 @@ Run `yarn deploy` to deploy the new version of `YourContract.sol`.
 
 ---
 ## Checkpoint 2: Noir Merkle Proof Verification Circuit
-The first thing we need to do for our circuit is add `zk-kit` merkle tree as dependency to `packages/nargo/circuits/your_circuit/nargo.toml`.
+The first thing we need to do for our circuit is add `zk-kit` merkle tree as dependency to `packages/nargo/circuits/your_circuit/nargo.toml`. This library is the noir counterpart to the solidity library that you imported earlier.
 
 ```
 [dependencies]
@@ -181,7 +187,7 @@ Inside of the `main` function generate the merkle `leaf` by feeding `secret` and
 let leaf = hasher([secret, salt]);
 ```
 
-Then you'll need to figure out the index where the empty elements in the siblings array begin.
+Then you'll need to figure out the index where the empty elements in the siblings array begin. You'll need this variable so that the merkle root calculation can be performed correctly.
 
 ```
 let mut siblings_num = 0;
@@ -192,7 +198,7 @@ for i in 0..siblings.len() {
 }
 ```
 
-Calculate the merkle root. You'll need to convert the index to bits, first. Then pass the `hasher`, `leaf`, `siblings_num`, `index_bits`, and `siblings` to the `binary_merkle_root` that you imported earlier.
+Calculate the merkle root. You'll need to convert the index to bits, first. Then pass the `hasher`, `leaf`, `siblings_num`, `index_bits`, and `siblings` to the `binary_merkle_root` that you imported earlier. If you're curious about the inner working of the calculation [ceck out the function code](https://github.com/privacy-scaling-explorations/zk-kit.noir/blob/54de5f14ec1a510d4a60db4278e52c919892b975/packages/binary-merkle-root/src/lib.nr#L10).
 
 ```
 let index_bits: [u1; 4] = indexes.to_le_bits();
@@ -205,6 +211,8 @@ Now `assert` that `pub_root` and the calculated `bin_root` are the same value.
 ```
 assert(pub_root == bin_root);
 ```
+
+The `assert` statement allows you to add constraints to your zero knowledge circuit. If the boolean statement in an `assert` evaluates to `false` then a valid proof cannot be constructed.
 
 For safe measure we can add assertions that `depth` is less than the length of `siblings`, and that `msg` is in fact equal to itself.
 
@@ -235,6 +243,8 @@ function setGreetingAnon(bytes calldata _proof, bytes32[] calldata _publicInputs
 }
 ```
 
+The public inputs to the noir circuit will be gathered together as a `bytes32[]` and passed to `YourContract` as calldata. They will be arranged in the order you defined in the `main` function of `your_circuit.nr`. 
+
 Parse `_publicInputs` into values you can use.
 
 ```
@@ -247,6 +257,7 @@ for (uint256 i; i<messageChars.length; i++) {
     message = message | messageChars[i] << 8*(messageChars.length-i-1);
 }
 ```
+Each character of the `msg` string will be its own element of the array. You'll need to gather them into a single `bytes32` and place each in the correct position.
 
 Check that the `proved_root` and `proved_depth` values match those stored by `YourContract`.
 
@@ -275,7 +286,7 @@ As this function stands anyone could dig through old transactions and replay a p
 mapping(bytes32 => bool) public isProved;
 ```
 
-calculate the `keccack256` hash of `_proof` and `_publicInputs` right at the top of the anonymous greeting setter function and at the end set the mapping to `true`.
+calculate the `keccak256` hash of `_proof` and `_publicInputs` right at the top of the anonymous greeting setter function and at the end set the mapping to `true`.
 
 ```
 bytes32 proofHash = keccak256(abi.encode(_proof, _publicInputs));
