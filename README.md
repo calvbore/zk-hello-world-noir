@@ -136,7 +136,7 @@ Run `yarn deploy` to deploy the new version of `YourContract.sol`.
 
 ---
 ## Checkpoint 2: Noir Merkle Proof Verification Circuit
-The first thing we need to do for our circuit is add `zk-kit` merkle tree as dependency to `packages/nargo/circuits/your_circuit/nargo.toml`. This library is the noir counterpart to the solidity library that you imported earlier.
+The first thing we need to do for our circuit is add `zk-kit` merkle tree as dependency to `packages/nargo/circuits/your_circuit/Nargo.toml`. This library is the noir counterpart to the solidity library that you imported earlier.
 
 ```
 [dependencies]
