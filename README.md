@@ -243,7 +243,7 @@ function setGreetingAnon(bytes calldata _proof, bytes32[] calldata _publicInputs
 }
 ```
 
-The public inputs to the noir circuit will be gathered together as a `bytes32[]` and passed to `YourContract` as calldata. They will be arranged in the order you defined in the `main` function of `your_circuit.nr`. 
+The public inputs to the noir circuit will be gathered together as a `bytes32[]` and passed to `YourContract` as calldata. They will be arranged in the order you defined in the `main` function of `your_circuit/src/main.nr`. 
 
 Parse `_publicInputs` into values you can use.
 
