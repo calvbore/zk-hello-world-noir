@@ -1,6 +1,8 @@
 # ZK Hello World - Merkle Tree
 
-Develop a smart contract and zero knowledge circuit that allows users to store a secret in a [merkle tree](https://hackmd.io/@vplasencia/S1whLBN16) and will allow anyone that can prove they know a secret hidden inside the merkle tree to anonymously set a greeting stored in the smart contract.
+Build a membership registry that allows members to use smart contract privileges anonymously! You'll create a smart contract, [merkle tree](https://hackmd.io/@vplasencia/S1whLBN16), and zero knowledge circuit using the [noir programming language](https://noir-lang.org/).
+
+You'll write a contact that will allow anyone to call a function be added to a registry stored in the contract as a [merkle tree](https://hackmd.io/@vplasencia/S1whLBN16). You'll then write a zero knowledge circuit (some fancy math that will let you prove that you ran a program without revealing the inputs to that program) that will let any member of the registry prove that they are included in it without revealing which member they are. Then you'll modify your contract to allow anyone that can create a valid proof to anonymously set a greeting on the contract.
 
 Using this basic merkle tree structure you will be able to construct arbitrary membership groups and allow those within the group to prove their membership anonymously. 
 
@@ -105,7 +107,11 @@ function getLeafIndex(uint256 _leaf) public view returns (uint256) {
 }
 ```
 
-Before you can deploy the contract you will need to modify the deployment script (`packages/hardhat/deploy/00_deploy_your_contract.ts`) so that the libraries will work properly. Deploy the `PoseidonT3` contract, it is a dependency of the `InternalLeanIMT` library that is used.
+Before you can deploy the contract you will need to modify the deployment script (`packages/hardhat/deploy/00_deploy_your_contract.ts`) so that the libraries will work properly.
+
+In most cases solidity libraries use functions labelled `internal`, but the merkle tree library implementation we are depending on calls a library function labelled `public`. Because of the strange way [solidity handles libraries](https://docs.soliditylang.org/en/v0.7.4/contracts.html#libraries), mainly if a function is `internal` it is directly compiled into the calling contract, but if it is not a kind of internal call then [`DELEGATECALL`](https://www.evm.codes/?fork=cancun#f4) will be used and we are required to deploy it and pass its address to the calling contract. 
+
+Deploy the `PoseidonT3` contract, it is a dependency of the `InternalLeanIMT` library that is used.
 
 ```
 const poseidon = await deploy("PoseidonT3", {
