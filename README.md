@@ -142,6 +142,10 @@ Run `yarn deploy` to deploy the new version of `YourContract.sol`.
 
 ---
 ## Checkpoint 2: Noir Merkle Proof Verification Circuit
+Here you'll use the [noir programming language](https://noir-lang.org/) to write a program to verify a  merkle tree inclusion proof in zero knowledge. We would never be able, or at lease it would unbearably difficult, to prove inclusion in a merkle tree anonymously with solidity alone. Luckily, noir comes to our rescue. Noir is a DSL (domain specific language) used to write zero knowledge circuits.
+
+A circuit is effectively just a very complex math equation that represents a program. Noir lets us write a program and compile it into that complex math equation. The magic (math) of ZK allows us to prove and verify that we know the solution to that equation without revealing the solution. This is a very powerful primitive that let's us both preserve privacy and offload computation from places where it is expensive (like the ethereum blockchain) to places where it is cheap (like your CPU or GPU in your PC)!
+
 The first thing we need to do for our circuit is add `zk-kit` merkle tree as dependency to `packages/nargo/circuits/your_circuit/Nargo.toml`. This library is the noir counterpart to the solidity library that you imported earlier.
 
 ```
