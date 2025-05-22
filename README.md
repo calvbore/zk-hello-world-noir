@@ -226,7 +226,7 @@ assert(depth <= siblings.len());
 assert(msg == msg);
 ```
 
-Run `yarn nargo:compile` in your terminal to compile `your_circuit` and generate its associated files.
+Run `yarn nargo:compile` in your terminal to compile `your_circuit` and generate its associated files. If this command fails go back to `Checkpoint 0` and make sure you have all the dependencies installed.
 
 ## Checkpoint 3: Circuit Smart Contract Verifier
 
