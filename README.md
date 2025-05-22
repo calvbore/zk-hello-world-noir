@@ -248,7 +248,7 @@ function setGreetingAnon(bytes calldata _proof, bytes32[] calldata _publicInputs
 }
 ```
 
-The public inputs to the noir circuit will be gathered together as a `bytes32[]` and passed to `YourContract` as calldata. They will be arranged in the order you defined in the `main` function of `your_circuit/src/main.nr`. 
+The public inputs to the noir circuit  will be gathered together as a `bytes32[]` array and passed to `YourContract` as calldata along with the proof of your circuit's execution. They will be arranged in the order you defined in the `main` function of `your_circuit/src/main.nr`. 
 
 Parse `_publicInputs` into values you can use.
 
@@ -262,7 +262,7 @@ for (uint256 i; i<messageChars.length; i++) {
     message = message | messageChars[i] << 8*(messageChars.length-i-1);
 }
 ```
-Each character of the `msg` string will be its own element of the array. You'll need to gather them into a single `bytes32` and place each in the correct position. Here we use an [array slice](https://docs.soliditylang.org/en/v0.8.30/types.html#array-slices) to achieve this and then iterate through to map the characters in the correct order.
+Each character of the `msg` input parameter from our noir program will be its own element of the array. You'll need to gather them into a single `bytes32` and place each in the correct position. Here we use an [array slice](https://docs.soliditylang.org/en/v0.8.30/types.html#array-slices) to achieve this and then iterate through to map the characters in the correct order.
 
 Check that the `proved_root` and `proved_depth` values match those stored by `YourContract`.
 
