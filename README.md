@@ -153,22 +153,15 @@ The first thing we need to do for our circuit is add `zk-kit` merkle tree as dep
 binary_merkle_root = { git = "https://github.com/privacy-scaling-explorations/zk-kit.noir", tag = "binary-merkle-root-v0.0.1", directory = "packages/binary-merkle-root" }
 ```
 
-Import it into `packages/nargo/circuits/your_circuit/src/main.nr`. Right at the top of the file add the import with all the traits that are needed. While you're up here import the `poseidon` hash function from the standard library. 
+Import it into `packages/nargo/circuits/your_circuit/src/main.nr`. Right at the top of the file add the import with all the traits that are needed. While you're up here import the `hash_2` function from the noir standard library. It is an implementation of the [poseidon hash](https://www.poseidon-hash.info/). Poseidon is an efficient hash for zero knowledge circuits and will give you better performance than the standard hash functions we're used to using like `keccak256` and `sha256`.
 
 ```
 use binary_merkle_root::binary_merkle_root; 
 use std::hash::poseidon::bn254::hash_2;
 ```
 
-Define the `hasher` function that will be used inside the merkle tree calculations. It will be a simple wrapper around the `poseidon` `hash` function.
+You'll see a `main` function declared in `your_circuit/src/main.nr` already prepopulated with the parameters we'll be passing to the circuit. You'll see that they have different types like `Field`, `u32`, and `string`. You can read more about noir's data typed in the [documentation here](https://noir-lang.org/docs/noir/concepts/data_types).
 
-```
-fn hasher(leaves: [Field; 2]) -> Field {
-	hash_2(leaves)
-}
-```
-
-Set all of the inputs necessary for the `main` function.
 - `secret` along with `salt` are used to by the prover to claim that they know a secret value hashed behind one of leaves of the merkle tree managed by `YourContract`. 
 - `salt` a random value hashed with `secret` to generate a merkle tree leaf. In another design this could be used as a nullifier.
 - `indexes` will encode the position of the merkle tree leaf.
@@ -191,10 +184,10 @@ fn main(
 }
 ```
 
-Inside of the `main` function generate the merkle `leaf` by feeding `secret` and `salt` to `hasher`.
+Inside of the `main` function generate the merkle `leaf` by feeding `secret` and `salt` to `hash_2`.
 
 ```
-let leaf = hasher([secret, salt]);
+let leaf = hash_2([secret, salt]);
 ```
 
 Then you'll need to figure out the index where the empty elements in the siblings array begin. You'll need this variable so that the merkle root calculation can be performed correctly.
@@ -208,12 +201,12 @@ for i in 0..siblings.len() {
 }
 ```
 
-Calculate the merkle root. You'll need to convert the index to bits, first. Then pass the `hasher`, `leaf`, `siblings_num`, `index_bits`, and `siblings` to the `binary_merkle_root` that you imported earlier. If you're curious about the inner working of the calculation [ceck out the function code](https://github.com/privacy-scaling-explorations/zk-kit.noir/blob/54de5f14ec1a510d4a60db4278e52c919892b975/packages/binary-merkle-root/src/lib.nr#L10).
+Calculate the merkle root. You'll need to convert the index to bits, first. Then pass the `hash_2`, `leaf`, `siblings_num`, `index_bits`, and `siblings` to the `binary_merkle_root` that you imported earlier. If you're curious about the inner working of the calculation [check out the function code](https://github.com/privacy-scaling-explorations/zk-kit.noir/blob/54de5f14ec1a510d4a60db4278e52c919892b975/packages/binary-merkle-root/src/lib.nr#L10).
 
 ```
 let index_bits: [u1; 4] = indexes.to_le_bits();
 
-let bin_root = binary_merkle_root(hasher, leaf, siblings_num, index_bits, siblings);
+let bin_root = binary_merkle_root(hash_2, leaf, siblings_num, index_bits, siblings);
 ```
 
 Now `assert` that `pub_root` and the calculated `bin_root` are the same value.
