@@ -262,7 +262,7 @@ for (uint256 i; i<messageChars.length; i++) {
     message = message | messageChars[i] << 8*(messageChars.length-i-1);
 }
 ```
-Each character of the `msg` string will be its own element of the array. You'll need to gather them into a single `bytes32` and place each in the correct position.
+Each character of the `msg` string will be its own element of the array. You'll need to gather them into a single `bytes32` and place each in the correct position. Here we use an [array slice](https://docs.soliditylang.org/en/v0.8.30/types.html#array-slices) to achieve this and then iterate through to map the characters in the correct order.
 
 Check that the `proved_root` and `proved_depth` values match those stored by `YourContract`.
 
