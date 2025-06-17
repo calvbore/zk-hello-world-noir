@@ -38,9 +38,9 @@ export const CommitUI = () => {
     setHash(poseidon2([s, salt]));
   }, [secretInput, salt]);
 
-  const { writeContractAsync: writeContract } = useScaffoldWriteContract({ contractName: "YourContract" });
+  const { writeContractAsync: writeContract } = useScaffoldWriteContract({ contractName: "ZKMerkleTree" });
   const { data: leafIndex } = useScaffoldReadContract({
-    contractName: "YourContract",
+    contractName: "ZKMerkleTree",
     functionName: "getLeafIndex",
     args: [hash],
   });

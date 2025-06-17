@@ -58,19 +58,19 @@ export const ProveUI = () => {
   }, [params, inputItems, message, secret, salt, indexes]);
 
   const { data: contractRoot } = useScaffoldReadContract({
-    contractName: "YourContract",
+    contractName: "ZKMerkleTree",
     functionName: "getRoot",
   });
 
   // array with size and depth
   const { data: treeData } = useScaffoldReadContract({
-    contractName: "YourContract",
+    contractName: "ZKMerkleTree",
     functionName: "mt",
   });
 
   const { data: walletClient } = useWalletClient();
-  const { data: yourContract } = useScaffoldContract({
-    contractName: "YourContract",
+  const { data: zkMerkleTree } = useScaffoldContract({
+    contractName: "ZKMerkleTree",
     walletClient,
   });
 
@@ -81,7 +81,7 @@ export const ProveUI = () => {
     isLoading: isLoadingLeafEvents,
     error: errorReadingLeafEvents,
   } = useScaffoldEventHistory({
-    contractName: "YourContract",
+    contractName: "ZKMerkleTree",
     eventName: "NewLeaf",
     fromBlock: 0n,
     watch: true,
@@ -215,7 +215,7 @@ export const ProveUI = () => {
               onClick={async () => {
                 let g;
                 await transactor(() => {
-                  return yourContract?.write.setGreetingAnon([
+                  return zkMerkleTree?.write.setGreetingAnon([
                     uint8ArrayToHexString(proof as Uint8Array),
                     publicInputs as `0x${string}`[],
                   ]) as Promise<`0x${string}`>;
