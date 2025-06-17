@@ -58,44 +58,49 @@ yarn start
 
 ---
 ## Checkpoint 1: Smart Contract Merkle Tree
-First, install the `zk-kit` dependency in your solidity workspace.
 
-```
-yarn workspace @se-2/hardhat add @zk-kit/lean-imt.sol
-```
+<!-- If you try to deploy `ZKMerkleTree` after importing this library you may run into issues right now. The fix for deploying the contract is covered at the end of this section. -->
 
-You'll need to import the `InternalLeanIMT` Contract and `LeanIMTData` struct from zk-kit into `YourContract.sol`.
+Navigate into `packages/hardhat/contracts/ZKMerkleTree.sol`. At the top of the file you'll see a couple imports that you'll be taking advantage of here.
 
 ```
 import { InternalLeanIMT, LeanIMTData } from "@zk-kit/lean-imt.sol/LeanIMT.sol";
 ```
 
-If you try to deploy `YourContract` after importing this library you may run into issues right now. The fix for deploying the contract is covered at the end of this section.
-
-Instantiate a merkle tree data variable in `YourContract.sol`, make sure to use the `InternalLeanIMT` contract library for the struct!
+There are few variables and events already within the contract waiting for you to use them.
 
 ```
-using InternalLeanIMT for LeanIMTData;
-LeanIMTData public mt;
+contract ZKMerkleTree {
+	using InternalLeanIMT for LeanIMTData;
+    LeanIMTData public mt;
+    
+    string public greeting = "MerkleTree";
+    uint256 public totalCounter = 0;
+    mapping(address => uint) public userGreetingCounter;
+    mapping(bytes32 => bool) public isProved;
+
+    event GreetingChange(address indexed greetingSetter, string newGreeting, bool premium, uint256 value);
+    event NewLeaf(uint256 indexed index, uint256 indexed leaf);
+	//...
+}
 ```
 
-Create an event to track all the added members, we want to keep this so we can recreate the merkle tree at any time.
+Some of these should already look pretty familiar to you, but the newer variables are explained below.
 
-```
-event NewLeaf(uint256 indexed index, uint256 indexed leaf);
-```
+- `mt` is the instantiation of the merkle tree data variable for `ZKMerkleTree.sol`. We are using the methods defined in `InternalLeanIMT` as operators for the `LeanIMTData` type.
+- `isProved` is a mapping we will use to keep track of proofs and prevent replay attacks.
+- `NewLeaf` is an event that the front end will use to index and parse memberships in order to recreate the merkle tree offchain.
 
-Write function that will accept ETH if a premium is set and give membership in exchange. It should take in one `uint256` value and emit the `NewLeaf` event.
+Write function that will give membership to anyone that calls it and provides a hashed secret. It should take in one `uint256` value and emit the `NewLeaf` event.
 
 ```
 function insert(uint256 _hashedSecret) public payable {
-    if (premium) require(msg.value > 0);
     mt._insert(_hashedSecret);
     emit NewLeaf(mt.size-1, _hashedSecret);
 }
 ```
 
-Add a couple convenience functions. One to see the root of the contract's merkle tree and another to get the index of a leaf after it has been committed.
+You'll see a couple convenience functions already defined in the contract. They are simple getters used to look at the state of the contract's merkle tree. `getRoot()` see the root of the contract's merkle tree and `getLeafIndex()` to get the index of a leaf after it has been committed.
 
 ```
 function getRoot() public view returns (uint256) {
@@ -107,7 +112,7 @@ function getLeafIndex(uint256 _leaf) public view returns (uint256) {
 }
 ```
 
-Before you can deploy the contract you will need to modify the deployment script (`packages/hardhat/deploy/00_deploy_your_contract.ts`) so that the libraries will work properly.
+<!-- Before you can deploy the contract you will need to modify the deployment script (`packages/hardhat/deploy/00_deploy_your_contract.ts`) so that the libraries will work properly.
 
 In most cases solidity libraries use functions labelled `internal`, but the merkle tree library implementation we are depending on calls a library function labelled `public`. Because of the strange way [solidity handles libraries](https://docs.soliditylang.org/en/v0.7.4/contracts.html#libraries), mainly if a function is `internal` it is directly compiled into the calling contract, but if it is not a kind of internal call then [`DELEGATECALL`](https://www.evm.codes/?fork=cancun#f4) will be used and we are required to deploy it and pass its address to the calling contract. 
 
@@ -121,10 +126,10 @@ const poseidon = await deploy("PoseidonT3", {
 });
 ```
 
-Pass its `address` as a library to `YourContract`'s deployment function.
+Pass its `address` as a library to `ZKMerkleTree`'s deployment function.
 
 ```
-await deploy("YourContract", {
+await deploy("ZKMerkleTree", {
 	from: deployer,
 	// Contract constructor arguments
 	args: [deployer],
@@ -136,9 +141,9 @@ await deploy("YourContract", {
 		PoseidonT3: poseidon.address,
 	}
 });
-```
+``` -->
 
-Run `yarn deploy` to deploy the new version of `YourContract.sol`.
+Run `yarn deploy` to deploy the new version of `ZKMerkleTree.sol`.
 
 ---
 ## Checkpoint 2: Noir Merkle Proof Verification Circuit
@@ -164,13 +169,13 @@ You'll see a `main` function declared in `your_circuit/src/main.nr` already prep
 
 The `main` function is the entry point for any noir circuit. Anything that we want to happen in the circuit, and thus to be provable has to happen inside of `main`. The inputs to `main` can be marked `public`. In that case the value passed as that parameter must be included with the proof generated by the circuit in order to be verified. In our case we will use `public` inputs to bind proofs to the merkle tree state of our smart contract. You can read more about input visibility [here](https://noir-lang.org/docs/noir/concepts/data_types#private--public-types).
 
-- `secret` along with `salt` are used to by the prover to claim that they know a secret value hashed behind one of leaves of the merkle tree managed by `YourContract`. 
+- `secret` along with `salt` are used to by the prover to claim that they know a secret value hashed behind one of leaves of the merkle tree managed by `ZKMerkleTree`. 
 - `salt` a random value hashed with `secret` to generate a merkle tree leaf. In another design this could be used as a nullifier.
 - `indexes` will encode the position of the merkle tree leaf.
 - `siblings` is an array forming the hash path from the merkle leaf to the merkle root. Arrays in noir must be a fixed length.
-- `pub_root` will be compared to the merkle root of the tree stored in `YourContract`.
-- `depth` will be the depth of the tree in `YourContract`
-- `msg` is the message we want to set `YourContract`'s greeting to. This value doesn't actually do anything inside of the circuit, but it is a good practice to tie any values that change the state of a smart contract directly to the proof giving validity to those changes otherwise the proof could be used to front run the authentic contract call with different values. Strings in noir must be a fixed length.
+- `pub_root` will be compared to the merkle root of the tree stored in `ZKMerkleTree`.
+- `depth` will be the depth of the tree in `ZKMerkleTree`
+- `msg` is the message we want to set `ZKMerkleTree`'s greeting to. This value doesn't actually do anything inside of the circuit, but it is a good practice to tie any values that change the state of a smart contract directly to the proof giving validity to those changes otherwise the proof could be used to front run the authentic contract call with different values. Strings in noir must be a fixed length.
 
 ```
 fn main(
@@ -230,12 +235,12 @@ Run `yarn nargo:compile` in your terminal to compile `your_circuit` and generate
 
 ## Checkpoint 3: Circuit Smart Contract Verifier
 
-After running `yarn nargo:compile` you'll find that a new solidity file in your contracts directory. Import the new contract into `YourContract.sol` and inherit `UltraVerifier` in `YourContract`.
+After running `yarn nargo:compile` you'll find that a new solidity file in your contracts directory. Import the new contract into `ZKMerkleTree.sol` and inherit `UltraVerifier` in `ZKMerkleTree`.
 
 ```
 import "./your_circuitVerifier.sol";
 
-contract YourContract is UltraVerifier {
+contract ZKMerkleTree is UltraVerifier {
 //...
 }
 ```
@@ -248,7 +253,7 @@ function setGreetingAnon(bytes calldata _proof, bytes32[] calldata _publicInputs
 }
 ```
 
-The public inputs to the noir circuit  will be gathered together as a `bytes32[]` array and passed to `YourContract` as calldata along with the proof of your circuit's execution. They will be arranged in the order you defined in the `main` function of `your_circuit/src/main.nr`. 
+The public inputs to the noir circuit  will be gathered together as a `bytes32[]` array and passed to `ZKMerkleTree` as calldata along with the proof of your circuit's execution. They will be arranged in the order you defined in the `main` function of `your_circuit/src/main.nr`. 
 
 Parse `_publicInputs` into values you can use.
 
@@ -264,7 +269,7 @@ for (uint256 i; i<messageChars.length; i++) {
 ```
 Each character of the `msg` input parameter from our noir program will be its own element of the array. You'll need to gather them into a single `bytes32` and place each in the correct position. Here we use an [array slice](https://docs.soliditylang.org/en/v0.8.30/types.html#array-slices) to achieve this and then iterate through to map the characters in the correct order.
 
-Check that the `proved_root` and `proved_depth` values match those stored by `YourContract`.
+Check that the `proved_root` and `proved_depth` values match those stored by `ZKMerkleTree`.
 
 ```
 require(proved_root == mt._root(), "Root does not match");
@@ -278,14 +283,14 @@ bool validity = this.verify(_proof, _publicInputs);
 require(validity == true, "Invalid proof");
 ```
 
-After the proof is found to be valid set the greeting message of `YourContract` to the message tied to the proof.
+After the proof is found to be valid set the greeting message of `ZKMerkleTree` to the message tied to the proof.
 
 ```
 greeting = string(abi.encode(message));
 totalCounter += 1;
 ```
 
-As this function stands anyone could dig through old transactions and replay a proof to reset the greeting to the value tied to the proof. It is good practice to track if a proof has been used before. Add a `mapping` from `bytes32` to a `bool` in `YourContract`.
+As this function stands anyone could dig through old transactions and replay a proof to reset the greeting to the value tied to the proof. It is good practice to track if a proof has been used before. Add a `mapping` from `bytes32` to a `bool` in `ZKMerkleTree`.
 
 ```
 mapping(bytes32 => bool) public isProved;
@@ -322,7 +327,7 @@ In the input field under `Secret:` enter a string you'd like to use as your secr
 
 <img src="https://github.com/user-attachments/assets/3ec3afaf-be74-4e63-83d3-137fecc3ad03" width="500">
 
-When you're ready click the `Commit` button and your secret commitment will be added to the merkle tree in `YourContract`. You can click on the `Commit Info:` heading below to expand and see your commitment information. Click on the `Copy to Clipboard` button to copy it to your clipboard.
+When you're ready click the `Commit` button and your secret commitment will be added to the merkle tree in `ZKMerkleTree`. You can click on the `Commit Info:` heading below to expand and see your commitment information. Click on the `Copy to Clipboard` button to copy it to your clipboard.
 
 Now your secret is hidden in the smart contract's merkle root. You're the only one that knows this secret!
 
@@ -341,7 +346,7 @@ Enter a string you would like to set the contract greeting to in the input field
 
 Beneath you can click `Circuit Inputs:` to expand and view the input parameters that will be passed to `your_circuit`.
 
-Click the `Execute` button. If everything is running correctly it will enable the `Prove` button beside it. Click `Prove`, a loading circle will begin to spin. It may take a couple moments for your browser to generate the proof, be patient with it. If the proof is valid the loading icon will turn into a check and the `Set Greeting` button will be enabled, you can click this button to send a transaction with the generated proof and set the greeting in `YourContract` to the string you entered in the `Message:` field.
+Click the `Execute` button. If everything is running correctly it will enable the `Prove` button beside it. Click `Prove`, a loading circle will begin to spin. It may take a couple moments for your browser to generate the proof, be patient with it. If the proof is valid the loading icon will turn into a check and the `Set Greeting` button will be enabled, you can click this button to send a transaction with the generated proof and set the greeting in `ZKMerkleTree` to the string you entered in the `Message:` field.
 
 <img src="https://github.com/user-attachments/assets/443f7750-7100-40f4-a261-53f83cc83e97" width="500">
 
